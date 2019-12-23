@@ -49,7 +49,9 @@ def parseFormula(formula, rhs_char_list, skip_places=None):
                 if cell in cell_value_dict.keys():
                     rhs_char_list.append(cell_value_dict[cell])
                 else:
-                    cell_value = str(getValue(cell, skip_places,rhs_char_list))
+                    if cell[:1] == 'C':
+                        skip_places = -1
+                    cell_value = str(getValue(cell, skip_places, rhs_char_list))
                     if cell_value != None and cell_value[:1] == '=':
                         cell_value = parseFormula(cell_value, rhs_char_list, 0)
                         cell_value = cell_value[0]
@@ -93,7 +95,6 @@ for row in sheet_ranges.iter_rows( min_col=2, max_col=2):
             skip_places = -2
         # print(sheet_ranges[rhs_cell_loc].value)
         if cell.value and sheet_ranges[rhs_cell_loc].value:
-            # if 
             formula_text = ''
             lhs = cell.value
             rhs = sheet_ranges[rhs_cell_loc].value
