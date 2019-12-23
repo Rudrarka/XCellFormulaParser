@@ -54,8 +54,9 @@ def parseFormula(formula, rhs_char_list, skip_places=None):
                         cell_value = parseFormula(cell_value, rhs_char_list, 0)
                         cell_value = cell_value[0]
                     else:
-                        rhs_char_list.append(cell_value)
-                        cell_value_dict[cell] = cell_value
+                        if cell_value:
+                            rhs_char_list.append(cell_value)
+                            cell_value_dict[cell] = cell_value
                         # print(cell.strip(), cell_value.strip())
                 rhs_char_list.append(char)                               
                 cell = ''
@@ -69,8 +70,9 @@ def parseFormula(formula, rhs_char_list, skip_places=None):
                         cell_value = parseFormula(cell_value, rhs_char_list, 0)
                         cell_value = cell_value[0]
                     else:
-                        rhs_char_list.append(cell_value)
-                        cell_value_dict[cell] = cell_value
+                        if cell_value:
+                            rhs_char_list.append(cell_value)
+                            cell_value_dict[cell] = cell_value
             elif char in["'"]:
                 cell += char
                 skip = not skip
@@ -85,7 +87,13 @@ for row in sheet_ranges.iter_rows( min_col=2, max_col=2):
     for index,cell in enumerate(row):
         lhs_cell_loc = cell.coordinate
         rhs_cell_loc = letters[letters.index(lhs_cell_loc[:1])+1] + lhs_cell_loc[1:]
+        skip_places = -1
+        if sheet_ranges[rhs_cell_loc].value == None:
+            rhs_cell_loc = letters[letters.index(lhs_cell_loc[:1])+2] + lhs_cell_loc[1:]
+            skip_places = -2
+        # print(sheet_ranges[rhs_cell_loc].value)
         if cell.value and sheet_ranges[rhs_cell_loc].value:
+            # if 
             formula_text = ''
             lhs = cell.value
             rhs = sheet_ranges[rhs_cell_loc].value
@@ -93,7 +101,7 @@ for row in sheet_ranges.iter_rows( min_col=2, max_col=2):
             rhs_char_list = []
             lhs = parseFormula(str(lhs), lhs_char_list, 0)
             lhs_string = ''.join(word for word in lhs)
-            rhs = parseFormula(str(rhs), rhs_char_list, -1)
+            rhs = parseFormula(str(rhs), rhs_char_list, skip_places)
             rhs_string = ''.join(word for word in rhs)
             formula = lhs_string + ' = ' + rhs_string
             file.write(formula+'\n')
